@@ -8,7 +8,7 @@ Includes a custom UI-Schema binding with react-native `string`, `boolean` and `S
 >
 > No experience with Expo/React Native. Without checking best practices or which packages/theme libraries exist.
 >
-> The Android and web preview and build were successful.
+> The preview and build for Android and web platforms were successful.
 
 ![screenshot of browser and android app preview](./assets/ui-schema-react-native.jpg)
 

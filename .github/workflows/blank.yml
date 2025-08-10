@@ -23,9 +23,6 @@ jobs:
         node-version: [ 24 ]
     steps:
       - uses: actions/checkout@v4
-      - name: Set Branch
-        id: vars
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -66,7 +63,8 @@ jobs:
           name: android-app-bundle
           path: android/app/build/outputs/bundle/release/app-release.aab
 
-
-
-
-
+      - name: Upload Web Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-app-bundle
+          path: dist
