@@ -1,0 +1,72 @@
+name: UI-Schema React Native CI
+
+env:
+  DOCKER_BUILDKIT: 1
+
+on:
+  push:
+    branches: [ main, develop, feature/** ]
+  pull_request:
+    branches: [ main, develop, feature/** ]
+  #    create:
+  #        tags:
+  #            - '[0-9]+.[0-9]+.[0-9]+*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_node:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 24 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set Branch
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cache CI node_modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Web
+        run: npx expo export -p web
+
+      - name: Build Android
+        run: |
+          npx expo prebuild --platform android
+          chmod +x android/gradlew
+          cd android
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Upload Android Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-app-bundle
+          path: android/app/build/outputs/bundle/release/app-release.aab
+
+
+
+
+
